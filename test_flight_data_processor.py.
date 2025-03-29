@@ -1,0 +1,125 @@
+import unittest
+from datetime import datetime
+from typing import Dict
+from  flight_data_processor import FlightDataProcessor, Status
+
+class TestFlightDataProcessor(unittest.TestCase):
+    def setUp(self)->None:        
+        self.processor = FlightDataProcessor()
+
+    def test_add_flight(self):
+        """Test adding a flight."""
+        flight_data = {
+            "flight_number": "AB123",
+            "departure_time": "2025-03-29 12:00",
+            "arrival_time": "2025-03-29 14:00",
+            "status": Status.ON_TIME.value
+        }
+
+        self.processor.add_flight(flight_data)
+        flights = self.processor.view_flights()
+        self.assertEqual(len(flights), 1)
+        self.assertEqual(flights[0]['flight_number'], "AB123")
+
+    def test_add_duplicate_flight(self):
+        """Test adding a flight with a duplicate flight number."""
+        flight_data_1 = {
+            "flight_number": "AB123",
+            "departure_time": "2025-03-29 12:00",
+            "arrival_time": "2025-03-29 14:00",
+            "status": Status.ON_TIME.value
+        }
+        flight_data_2 = {
+            "flight_number": "AB123",  # Duplicate flight number
+            "departure_time": "2025-03-29 16:00",
+            "arrival_time": "2025-03-29 18:00",
+            "status": Status.DELAYED.value
+        }
+
+        self.processor.add_flight(flight_data_1)
+        self.processor.add_flight(flight_data_2)  # Should not be added
+
+        flights = self.processor.view_flights()
+        self.assertEqual(len(flights), 1)  # Only the first flight should be in the list
+
+    def test_remove_flight(self):
+        """Test removing a flight."""
+        flight_data = {
+            "flight_number": "AB123",
+            "departure_time": "2025-03-29 12:00",
+            "arrival_time": "2025-03-29 14:00",
+            "status": Status.ON_TIME.value
+        }
+
+        self.processor.add_flight(flight_data)
+        self.processor.remove_flight("AB123")
+        flights = self.processor.view_flights()
+        self.assertEqual(len(flights), 0)  # Flight should be removed
+
+    def test_flights_by_status(self):
+        """Test filtering flights by status."""
+        flight_data_1 = {
+            "flight_number": "AB123",
+            "departure_time": "2025-03-29 12:00",
+            "arrival_time": "2025-03-29 14:00",
+            "status": Status.ON_TIME.value
+        }
+        flight_data_2 = {
+            "flight_number": "AB124",
+            "departure_time": "2025-03-29 16:00",
+            "arrival_time": "2025-03-29 18:00",
+            "status": Status.DELAYED.value
+        }
+
+        self.processor.add_flight(flight_data_1)
+        self.processor.add_flight(flight_data_2)
+
+        on_time_flights = self.processor.flights_by_status(Status.ON_TIME)
+        self.assertEqual(len(on_time_flights), 1)
+        self.assertEqual(on_time_flights[0]['flight_number'], "AB123")
+
+        delayed_flights = self.processor.flights_by_status(Status.DELAYED)
+        self.assertEqual(len(delayed_flights), 1)
+        self.assertEqual(delayed_flights[0]['flight_number'], "AB124")
+
+    def test_calculate_duration(self):
+        """Test calculating flight durations."""
+        flight_data = {
+            "flight_number": "AB123",
+            "departure_time": "2025-03-29 12:00",
+            "arrival_time": "2025-03-29 14:30",
+            "status": Status.ON_TIME.value
+        }
+
+        self.processor.add_flight(flight_data)
+        flights_with_duration = self.processor.calculate_duration(self.processor.view_flights())
+        self.assertEqual(flights_with_duration[0]['duration_minutes'], 150)  # Duration should be 2.5 hours
+
+    def test_get_longest_flight(self):
+        """Test finding the longest flight."""
+        flight_data_1 = {
+            "flight_number": "AB123",
+            "departure_time": "2025-03-29 12:00",
+            "arrival_time": "2025-03-29 14:00",
+            "status": Status.ON_TIME.value
+        }
+        flight_data_2 = {
+            "flight_number": "AB124",
+            "departure_time": "2025-03-29 16:00",
+            "arrival_time": "2025-03-29 19:00",
+            "status": Status.DELAYED.value
+        }
+
+        self.processor.add_flight(flight_data_1)
+        self.processor.add_flight(flight_data_2)
+
+        longest_flight = self.processor.get_longest_flight()
+        self.assertEqual(longest_flight['flight_number'], "AB124")  # Flight AB124 should be the longest
+
+    def test_get_longest_flight_no_flights(self):
+        """Test case when no flights are available."""
+        longest_flight = self.processor.get_longest_flight()
+        self.assertIsNone(longest_flight)  # No flights, so result should be None
+
+if __name__ == '__main__':
+    unittest.main()
