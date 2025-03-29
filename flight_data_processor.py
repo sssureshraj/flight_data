@@ -1,5 +1,6 @@
 from typing import List, Dict, Optional
 from enum import Enum
+from datetime import datetime
 
 class Status(Enum):
 	ON_TIME = "ON TIME"
@@ -21,9 +22,23 @@ class FlightDataProcessor:
 
 	def flights_by_status(self,status:Status)->List[Dict[str,str]]:
 		return [ flight for flight in self.flights if flight["status"] == status.value ]
+		
+	def calculate_duration(self,flights:list)->list:
+		new_list = []
+		for flight in flights:
+			departure_time = datetime.strptime(flight["departure_time"], "%Y-%m-%d %H:%M")
+			arrival_time = datetime.strptime(flight["arrival_time"], "%Y-%m-%d %H:%M")
+			duration = (arrival_time - departure_time).total_seconds() / 60
+			duration = int(duration)
+			flight["duration_minutes"] = duration
+			new_list.append(i)
 
+		return new_list
+				
+		
 	def get_longest_flight(self)->Optional[Dict[str,str]]
 		if not self.flights:
 			return None
+		self.flights = self.calculate_duration(self.flights)
 		longest_flight = max(self.flights, key=lambda flight:flight['duration_minutes'])
 		return longest_flight
