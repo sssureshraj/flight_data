@@ -1,7 +1,7 @@
 import unittest
 from datetime import datetime
 from typing import Dict
-from  flight_data_processor import FlightDataProcessor, Status
+from  flight_data_processor import FlightDataProcessor
 
 class TestFlightDataProcessor(unittest.TestCase):
     def setUp(self)->None:        
@@ -13,7 +13,7 @@ class TestFlightDataProcessor(unittest.TestCase):
             "flight_number": "AB123",
             "departure_time": "2025-03-29 12:00",
             "arrival_time": "2025-03-29 14:00",
-            "status": Status.ON_TIME.value
+            "status": "ON_TIME"
         }
 
         self.processor.add_flight(flight_data)
@@ -27,13 +27,13 @@ class TestFlightDataProcessor(unittest.TestCase):
             "flight_number": "AB123",
             "departure_time": "2025-03-29 12:00",
             "arrival_time": "2025-03-29 14:00",
-            "status": Status.ON_TIME.value
+            "status": "ON_TIME"
         }
         flight_data_2 = {
             "flight_number": "AB123",  # Duplicate flight number
             "departure_time": "2025-03-29 16:00",
             "arrival_time": "2025-03-29 18:00",
-            "status": Status.DELAYED.value
+            "status": "DELAYED"
         }
 
         self.processor.add_flight(flight_data_1)
@@ -48,7 +48,7 @@ class TestFlightDataProcessor(unittest.TestCase):
             "flight_number": "AB123",
             "departure_time": "2025-03-29 12:00",
             "arrival_time": "2025-03-29 14:00",
-            "status": Status.ON_TIME.value
+            "status": "ON_TIME"
         }
 
         self.processor.add_flight(flight_data)
@@ -62,23 +62,23 @@ class TestFlightDataProcessor(unittest.TestCase):
             "flight_number": "AB123",
             "departure_time": "2025-03-29 12:00",
             "arrival_time": "2025-03-29 14:00",
-            "status": Status.ON_TIME.value
+            "status": "ON_TIME"
         }
         flight_data_2 = {
             "flight_number": "AB124",
             "departure_time": "2025-03-29 16:00",
             "arrival_time": "2025-03-29 18:00",
-            "status": Status.DELAYED.value
+            "status": "DELAYED"
         }
 
         self.processor.add_flight(flight_data_1)
         self.processor.add_flight(flight_data_2)
 
-        on_time_flights = self.processor.flights_by_status(Status.ON_TIME)
+        on_time_flights = self.processor.flights_by_status("ON_TIME")
         self.assertEqual(len(on_time_flights), 1)
         self.assertEqual(on_time_flights[0]['flight_number'], "AB123")
 
-        delayed_flights = self.processor.flights_by_status(Status.DELAYED)
+        delayed_flights = self.processor.flights_by_status("DELAYED")
         self.assertEqual(len(delayed_flights), 1)
         self.assertEqual(delayed_flights[0]['flight_number'], "AB124")
 
@@ -88,7 +88,7 @@ class TestFlightDataProcessor(unittest.TestCase):
             "flight_number": "AB123",
             "departure_time": "2025-03-29 12:00",
             "arrival_time": "2025-03-29 14:30",
-            "status": Status.ON_TIME.value
+            "status": "ON_TIME"
         }
 
         self.processor.add_flight(flight_data)
@@ -101,13 +101,13 @@ class TestFlightDataProcessor(unittest.TestCase):
             "flight_number": "AB123",
             "departure_time": "2025-03-29 12:00",
             "arrival_time": "2025-03-29 14:00",
-            "status": Status.ON_TIME.value
+            "status": "ON_TIME"
         }
         flight_data_2 = {
             "flight_number": "AB124",
             "departure_time": "2025-03-29 16:00",
             "arrival_time": "2025-03-29 19:00",
-            "status": Status.DELAYED.value
+            "status": "DELAYED"
         }
 
         self.processor.add_flight(flight_data_1)
@@ -122,4 +122,4 @@ class TestFlightDataProcessor(unittest.TestCase):
         self.assertIsNone(longest_flight)  # No flights, so result should be None
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest.main(argv=['frist-arg-is-ignored'], exit=False)
